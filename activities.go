@@ -2,6 +2,8 @@ package iplocate
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -16,7 +18,7 @@ type IPActivities struct {
 }
 
 func (i *IPActivities) GetIP(ctx context.Context) (string, error) {
-	resp, err := i.HTTPClient.Get("https://icanhazip.com/")
+	resp, err := i.HTTPClient.Get("https://icanhazip.com")
 	if err != nil {
 		return "", err
 	}
@@ -26,11 +28,12 @@ func (i *IPActivities) GetIP(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	ip := strings.TrimSpace(string(body))
 	return ip, nil
 }
 
-func (i *IPActivities GetLocations)(ctx context.Context, ip string) (string, error) {
+func (i *IPActivities) GetLocationInfo(ctx context.Context, ip string) (string, error) {
 	url := fmt.Sprintf("http://ip-api.com/json/%s", ip)
 	resp, err := i.HTTPClient.Get(url)
 	if err != nil {
@@ -44,9 +47,9 @@ func (i *IPActivities GetLocations)(ctx context.Context, ip string) (string, err
 	}
 
 	var data struct {
-		City string `json:"city"`
+		City       string `json:"city"`
 		RegionName string `json:"regionName"`
-		Country string `json:"country"`
+		Country    string `json:"country"`
 	}
 
 	err = json.Unmarshal(body, &data)
